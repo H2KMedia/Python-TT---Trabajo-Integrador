@@ -1,32 +1,6 @@
 # Inventario de libros
 import os
 import sqlite3
-
-def crear_conexion():
-    # Crear la carpeta "bases" si no existe
-    if not os.path.exists("bases"):
-        os.makedirs("bases")
-    
-    # Crear una conexión a la base de datos SQLite
-    conexion = sqlite3.connect("./bases/base_main.db")
-    return conexion
-def crear_tabla():
-    conexion = crear_conexion()
-    cursor = conexion.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS libros (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            titulo TEXT NOT NULL,
-            autor TEXT NOT NULL,
-            anio TEXT NOT NULL,
-            editorial TEXT NOT NULL,
-            isbn TEXT NOT NULL UNIQUE,
-            unidades INTEGER NOT NULL,
-            precio REAL NOT NULL
-        )
-    ''')
-    conexion.commit()
-    conexion.close()
 # Menú de opciones:
 def mostrar_menu():
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -52,101 +26,36 @@ def mostrar_submenu_registrar():
     print("|                                                        INGRESE LOS DATOS DEL NUEVO REGISTRO:                                                       |")
     print(150*"-")
     print()
-    
-def obtener_siguiente_id():
-    conexion = crear_conexion()
-    cursor = conexion.cursor()
-    cursor.execute('SELECT MAX(id) FROM libros')
-    ultimo_id = cursor.fetchone()[0]
-    conexion.close()
-    if ultimo_id:
-        return ultimo_id + 1
+
+def obtener_id_libro():
+    # Obtiene el próximo ID secuencial desde el archivo
+    if os.path.exists("./base_de_datos.txt"):
+        with open("./base_de_datos.txt", "r") as file:
+            lineas = file.readlines()
+        return len(lineas) + 1  # ID secuencial
     return 1
 
-def registrar_libro():
-    while True:
-        mostrar_submenu_registrar()
-        siguiente_id = obtener_siguiente_id()
-        print(f"ID DEL NUEVO LIBRO: {siguiente_id}")
-        titulo = input("TÍTULO: ").upper()
-        autor = input("AUTOR: ").upper()
-        anio = input("AÑO DE EDICIÓN: ").upper()
-        editorial = input("EDITORIAL: ").upper()
-        isbn = validar_isbn()
-        unidades = input("CANTIDAD DE UNIDADES: ").upper()
-        precio = input("PRECIO VENTA: ").upper()
-
-        print("\nDATOS INGRESADOS:")
-        print(f"ID: {siguiente_id}")
-        print(f"TÍTULO: {titulo}")
-        print(f"AUTOR: {autor}")
-        print(f"AÑO: {anio}")
-        print(f"EDITORIAL: {editorial}")
-        print(f"ISBN: {isbn}")
-        print(f"UNIDADES: {unidades}")
-        print(f"PRECIO: {precio}")
-
-        confirmar_guardar = input("¿DESEA GUARDAR ESTE LIBRO? (S/N): ").upper()
-        if confirmar_guardar == 'S':
-            conexion = crear_conexion()
-            cursor = conexion.cursor()
-            cursor.execute('''
-                INSERT INTO libros (id, titulo, autor, anio, editorial, isbn, unidades, precio)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (siguiente_id, titulo, autor, anio, editorial, isbn, unidades, precio))
-            conexion.commit()
-            conexion.close()
-            print("LIBRO REGISTRADO EXITOSAMENTE")
-            continuar = input("¿DESEA REGISTRAR OTRO LIBRO? (S/N): ").upper()
-            if continuar == 'N':
-                break
-        else:
-            confirmar_salir = input("¿DESEA SALIR DE LA CARGA DE DATOS? (S/N): ").upper()
-            if confirmar_salir == 'S':
-                break
-
-def registrar_libro():
-    mostrar_submenu_registrar()
-    titulo = input("TÍTULO: ").upper()
-    autor = input("AUTOR: ").upper()
-    anio = input("AÑO DE EDICIÓN: ").upper()
-    editorial = input("EDITORIAL: ").upper()
-    isbn = validar_isbn()
-    unidades = input("CANTIDAD DE UNIDADES: ").upper()
-    precio = input("PRECIO VENTA: ").upper()
-
-    conexion = crear_conexion()
-    cursor = conexion.cursor()
-    cursor.execute('''
-        INSERT INTO libros (titulo, autor, anio, editorial, isbn, unidades, precio)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    ''', (titulo, autor, anio, editorial, isbn, unidades, precio))
-    conexion.commit()
-    conexion.close()
-    print("LIBRO REGISTRADO EXITOSAMENTE")
-    input("PRESIONE CUALQUIER TECLA PARA CONTINUAR...")
+def guardar_libro(libro):
+    # Guarda el libro en el archivo base_de_datos.txt
+    with open("./base_de_datos.txt", "a") as file:
+        file.write(f"{libro['id']},{libro['titulo']},{libro['autor']},{libro['anio']},{libro['editorial']},{libro['isbn']},{libro['unidades']},{libro['precio']}\n")
 
 def listar_libros():
-    conexion = crear_conexion()
-    cursor = conexion.cursor()
-    cursor.execute('SELECT * FROM libros')
-    libros = cursor.fetchall()
-    conexion.close()
-
-    if not libros:
-        print(150*"-")
-        print("|                                                          NO HAY LIBROS REGISTRADOS                                                                 |")
-        print(150*"-")
-    else:
+    # Lista todos los libros almacenados en base_de_datos.txt
+    if os.path.exists("./base_de_datos.txt"):
+        with open("./base_de_datos.txt", "r") as file:
+            lineas = file.readlines()
         print(150*"-")
         print("|                                                                  LISTADO DE LIBROS                                                                 |")
         print("+-----+--------------------------------------------+----------------------------+------+---------------------------+---------------+-------+---------+")
         print("| ID  | TÍTULO                                     | AUTOR                      | AÑO  | EDITORIAL                 | ISBN          | STOCK | PRECIO  |")
         print("+-----+--------------------------------------------+----------------------------+------+---------------------------+---------------+-------+---------+")
-        for libro in libros:
-            print(f"| {str(libro[0]).upper():<3} | {libro[1][:42].upper():<42} | {libro[2][:26].upper():<26} | {libro[3][:4].upper():<4} | {libro[4][:25].upper():<25} | {libro[5][:13].upper():<13} |   {str(libro[6]).upper():<3} | ${str(libro[7]).upper():<6} |")
+        for linea in lineas:
+            datos = linea.strip().split(",")
+            print(f"| {datos[0]:<3} | {datos[1]:<42} | {datos[2]:<26} | {datos[3]:<4} | {datos[4]:<25} | {datos[5]:<13} |   {datos[6]:<3} | ${datos[7]:<6} |")
         print("+-----+--------------------------------------------+----------------------------+------+---------------------------+---------------+-------+---------+")
-
+    else:
+        print("NO HAY LIBROS REGISTRADOS")
 
 def buscar_libro():
     os.system('cls' if os.name == 'nt' else 'clear')
