@@ -9,6 +9,7 @@ def crear_conexion():
     
     # Crear una conexión a la base de datos SQLite
     conexion = sqlite3.connect("./bases/base_main.db")
+    cursor = conexion.cursor()
     return conexion
 def crear_tabla():
     conexion = crear_conexion()

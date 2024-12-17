@@ -21,6 +21,7 @@ def crear_tabla():
             anio TEXT NOT NULL,
             editorial TEXT NOT NULL,
             isbn TEXT NOT NULL UNIQUE,
+            genero TEXT NOT NULL,
             unidades INTEGER NOT NULL,
             precio REAL NOT NULL
         )
@@ -53,13 +54,21 @@ def mostrar_submenu_registrar():
     print(150*"-")
     print()
 
-def registrar_libro():
+def registrar_libro(titulo, autor, anio, editorial, isbn, genero, unidades, precio):
+    conexion = sqlite3.connect("./bases/base_main.db")
+    cursor =conexion.cursor()
+    query = '''
+        INSER INTo libros (titulo, autor, anio, editorial, isbn, genero, unidades, preio)
+        VALUES (?,?,?,?,?,?,?,?)
+    '''
+    cursor.execute(query, ())
     mostrar_submenu_registrar()
     titulo = input("TÍTULO: ").upper()
     autor = input("AUTOR: ").upper()
     anio = input("AÑO DE EDICIÓN: ").upper()
     editorial = input("EDITORIAL: ").upper()
     isbn = validar_isbn()
+    
     unidades = input("CANTIDAD DE UNIDADES: ").upper()
     precio = input("PRECIO VENTA: ").upper()
 
