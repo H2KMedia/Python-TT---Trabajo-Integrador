@@ -19,10 +19,26 @@ def inicializar_bd():
     ''')
     conn.commit()
     conn.close()
-
+    
+# Menú de opciones
+def mostrar_menu():
+    #os.system('cls' if os.name == 'nt' else 'clear')
+    print(150*"-")
+    print("|                                                       MENÚ DE OPCIONES DISTRIBUIDORA LIBROS                                                        |")
+    print(150*"-")
+    print("|                                                                                                                                                    |")
+    print("|                                                             1 - REGISTRAR LIBRO                                                                    |")
+    print("|                                                             2 - ACTUALIZAR LIBRO                                                                   |")
+    print("|                                                             3 - ELIMINAR LIBRO                                                                     |")
+    print("|                                                             4 - BUSCAR LIBRO                                                                       |")
+    print("|                                                             5 - LISTAR LIBROS                                                                      |")
+    print("|                                                             0 - SALIR DE SISTEMA                                                                   |")
+    print("|                                                                                                                                                    |")
+    print(150*"-")
+    
 # Función para agregar un nuevo registro
 def agregar_registro():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     while True:
         autor = input("INGRESE EL AUTOR: ")
         titulo = input("INGRESE EL TITULO: ")
@@ -50,20 +66,20 @@ def agregar_registro():
 
 # Función para modificar un registro
 def modificar_registro():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     print("OPCIONES DE BÚSQUEDA: ")
     print(" 1. ID")
     print(" 2. AUTOR ")
     print(" 3. TÍTULO")
     opcion = int(input("SELECCIONE UNA OPCIÓN: "))
 
-    if opcion == 1:
+    if opcion == '1':
         referencia = input("INGRESE EL ID: ")
         campo_busqueda = "id"
-    elif opcion == 2:
+    elif opcion == '2':
         referencia = input("INRESE EL AUTORr: ")
         campo_busqueda = "autor"
-    elif opcion == 3:
+    elif opcion == '3':
         referencia = input("INGRESE EL TÍTULO: ")
         campo_busqueda = "titulo"
     else:
@@ -110,7 +126,7 @@ def modificar_registro():
 
 # Función para eliminar un registro
 def eliminar_registro():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     id_eliminar = input("INGRESE EL ID DEL REGISTRO A ELIMINAR: ")
 
     conn = sqlite3.connect('stock.db')
@@ -139,7 +155,7 @@ def eliminar_registro():
 
 # Función para listar registros
 def listar_registros():
-    os.system('cls' if os.name == 'nt' else 'clear')
+    #os.system('cls' if os.name == 'nt' else 'clear')
     print("OPCIONES DE LISTADO: ")
     print(" 1. TODOS LOS REGISTROS ")
     print(" 2. REPORTE DE STOCK MÍNIMO")
@@ -149,12 +165,12 @@ def listar_registros():
     cursor = conn.cursor()
     
     if opcion == 1:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #  os.system('cls' if os.name == 'nt' else 'clear')
         cursor.execute('''
             SELECT * FROM registros ORDER BY id
         ''')
     elif opcion == 2:
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #os.system('cls' if os.name == 'nt' else 'clear')
         stock_limite = int(input("INGRESE LA CANTIDAD LÍMITE DE STOCK: "))
         cursor.execute('''
             SELECT * FROM registros WHERE stock <= ? ORDER BY id
@@ -162,7 +178,7 @@ def listar_registros():
     else:
         print("OPCIÓN NO VÁLIDA.")
         input("PRESIONE CUALQUIER TECLA PARA CONTINUAR...")
-        os.system('cls' if os.name == 'nt' else 'clear')
+        #os.system('cls' if os.name == 'nt' else 'clear')
         conn.close()
         return
     
@@ -174,29 +190,22 @@ def listar_registros():
 
 # Función principal del menú
 def menu():
-    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
-        print("\nMENÚ PRINCIPAL:")
-        print("1. ALTA")
-        print("2. MODIFICAR")
-        print("3. ELIMINAR")
-        print("4. LISTADOS")
-        print("0. SALIR")
-        opcion = int(input("SELECCIONE UNA OPCIÓN: "))
-
-        if opcion == 1:
+        mostrar_menu()
+        opcion = input("SELECCIONE UNA OPCIÓN: ")
+        if opcion == '1':
             os.system('cls' if os.name == 'nt' else 'clear')
             agregar_registro()
-        elif opcion == 2:
+        elif opcion == '2':
             os.system('cls' if os.name == 'nt' else 'clear')
             modificar_registro()
-        elif opcion == 3:
+        elif opcion == '3':
             os.system('cls' if os.name == 'nt' else 'clear')
             eliminar_registro()
-        elif opcion == 4:
+        elif opcion == '4':
             os.system('cls' if os.name == 'nt' else 'clear')
             listar_registros()
-        elif opcion == 0:
+        elif opcion == '0':
             os.system('cls' if os.name == 'nt' else 'clear')
             print("...::: SALIENDO DEL PROGRAMA :::...")
             print()
@@ -219,6 +228,7 @@ def menu():
             print("´´´´´´´´´´´´´´´´´´´´´´´¶¶¶¶¶¶¶¶¶¶¶")
             print()
             input("PRESIONE CUALQUIER TECLA PARA CONTINUAR...")
+            print()
             break
         else:
             print("OPCIÓN NO VÁLIDA")
