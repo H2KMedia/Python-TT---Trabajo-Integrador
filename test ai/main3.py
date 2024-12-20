@@ -1,125 +1,101 @@
+import os
 import sqlite3
 
-# Función para crear la base de datos y la tabla si no existen
-def inicializar_bd():
-    conn = sqlite3.connect('stock_libros.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS REGISTROS (
-            ID INTEGER PRIMARY KEY AUTOINCREMENT,
-            AUTOR TEXT,
-            TITULO TEXT,
-            STOCK INTEGER,
-            PRECIO REAL
-        )
-    ''')
-    conn.commit()
-    conn.close()
+conexion = sqlite3.connect('stock_libros.db')
+cursor = conexion.cursor()
+'''
+def get_connection():
+    return sqlite3.connect('stock_libros.db')
 
-# Función para agregar un nuevo registro
-def agregar_registro():
-    while True:
-        autor = input("INGRESE EL AUTOR: ").upper()
-        titulo = input("INGRESE EL TÍTULO: ").upper()
-        stock = int(input("INGRESE EL STOCK: "))
-        precio = float(input("INGRESE EL PRECIO: "))
+def crear_tabla_libros():'''
+query = """ CREATE TABLE libros (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                autor TEXT NOT NULL,
+                titulo TEXT NOT NULL,
+                editorial TEXT NOT NULL,
+                edicion integer NOT NULL,
+                isbn INTEGER NOT NULL,
+                stock INTEGER NOT NULL,
+                precio  REAL NOT NULL)"""
 
-        confirmar = input("¿DESEA GUARDAR EL REGISTRO? (S/N): ").upper()
-        if confirmar == 'S':
-            conn = sqlite3.connect('stock_libros.db')
-            cursor = conn.cursor()
-            cursor.execute('''
-                INSERT INTO REGISTROS (AUTOR, TITULO, STOCK, PRECIO)
-                VALUES (?, ?, ?, ?)
-            ''', (autor, titulo, stock, precio))
-            conn.commit()
-            conn.close()
-            print("REGISTRO GUARDADO.")
+try:
+    conexion.execute(query)
+    print("se creó la tabla artículos")
+except sqlite3.OperationalError:
+    print("La tabla artículos ya existe")
+    
+conexion.close()
 
-        otro = input("¿DESEA CARGAR OTRO REGISTRO? (S/N): ").upper()
-        if otro != 'S':
-            break
 
-# Función para modificar un registro
-def modificar_registro():
-    print("OPCIONES DE BÚSQUEDA: 1. ID 2. AUTOR 3. TÍTULO")
-    opcion = int(input("SELECCIONE UNA OPCIÓN: "))
 
-    if opcion == 1:
-        referencia = input("INGRESE EL ID: ")
-        campo_busqueda = "ID"
-    elif opcion == 2:
-        referencia = input("INGRESE EL AUTOR: ").upper()
-        campo_busqueda = "AUTOR"
-    elif opcion == 3:
-        referencia = input("INGRESE EL TÍTULO: ").upper()
-        campo_busqueda = "TITULO"
-    else:
-        print("OPCIÓN NO VÁLIDA.")
-        return
-
-    conn = sqlite3.connect('stock_libros.db')
-    cursor = conn.cursor()
-    cursor.execute(f'''
-        SELECT * FROM REGISTROS WHERE {campo_busqueda} = ?
-    ''', (referencia,))
-    registro = cursor.fetchone()
-
-    if registro:
-        id_registro = registro[0]
-        print(f"ID: {registro[0]}, AUTOR: {registro[1]}, TÍTULO: {registro[2]}, STOCK: {registro[3]}, PRECIO: {registro[4]}")
         
-        nuevo_autor = input("INGRESE EL NUEVO AUTOR (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[1]
-        nuevo_titulo = input("INGRESE EL NUEVO TÍTULO (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[2]
-        nuevo_stock = input("INGRESE EL NUEVO STOCK (DEJAR EN BLANCO PARA NO MODIFICAR): ")
-        nuevo_stock = int(nuevo_stock) if nuevo_stock else registro[3]
-        nuevo_precio = input("INGRESE EL NUEVO PRECIO (DEJAR EN BLANCO PARA NO MODIFICAR): ")
-        nuevo_precio = float(nuevo_precio) if nuevo_precio else registro[4]
-
-        print(f"SE MODIFICARÁN LOS DATOS: AUTOR: {nuevo_autor}, TÍTULO: {nuevo_titulo}, STOCK: {nuevo_stock}, PRECIO: {nuevo_precio}")
-        confirmar = input("¿DESEA GUARDAR LOS CAMBIOS? (S/N): ").upper()
-
-        if confirmar == 'S':
-            cursor.execute('''
-                UPDATE REGISTROS SET AUTOR = ?, TITULO = ?, STOCK = ?, PRECIO = ?
-                WHERE ID = ?
-            ''', (nuevo_autor, nuevo_titulo, nuevo_stock, nuevo_precio, id_registro))
-            conn.commit()
-            print("REGISTRO MODIFICADO.")
-    else:
-        print("REGISTRO NO ENCONTRADO.")
+def insertar(autor, titulo, editorial, edicion, isbn, stock, precio):
+    query = """INSERT INTO libros(autor, titulo, editorial, edicion, isbn, stock, precio) VALUES (?,?,?,?,?,?,?)"""
+    cursor.execute(query, (autor, titulo, editorial, edicion, isbn, stock, precio))   
+    conexion.commit()
+    print("Registros añadidos")
     
-    conn.close()
+def cargar_datos():
+    autor = input("AUTOR: ")
+    titulo = input("TITULO: ")
+    editorial = input("EDITORIAL: ")
+    edicion = int(input("EDICIÓN: "))
+    isbn = int(input("ISBN: "))
+    stock = int(input("STOCK: "))
+    precio = float(input("PRECIO: "))
+    #mostrar los datos ingresaados
+    insertar(autor, titulo, editorial, edicion, isbn, stock, precio)
 
-# Función para eliminar un registro
-def eliminar_registro():
-    id_eliminar = input("INGRESE EL ID DEL REGISTRO A ELIMINAR: ")
 
-    conn = sqlite3.connect('stock_libros.db')
-    cursor = conn.cursor()
-    cursor.execute('''
-        SELECT * FROM REGISTROS WHERE ID = ?
-    ''', (id_eliminar,))
-    registro = cursor.fetchone()
 
-    if registro:
-        print(f"ID: {registro[0]}, AUTOR: {registro[1]}, TÍTULO: {registro[2]}, STOCK: {registro[3]}, PRECIO: {registro[4]}")
-        confirmar = input("¿DESEA ELIMINAR ESTE REGISTRO? (S/N): ").upper()
 
-        if confirmar == 'S':
-            confirmar_dos = input("¿ESTÁ SEGURO QUE DESEA ELIMINAR ESTE REGISTRO? ESTA ACCIÓN NO SE PUEDE DESHACER (S/N): ").upper()
-            if confirmar_dos == 'S':
-                cursor.execute('''
-                    DELETE FROM REGISTROS WHERE ID = ?
-                ''', (id_eliminar,))
-                conn.commit()
-                print("REGISTRO ELIMINADO.")
-    else:
-        print("REGISTRO NO ENCONTRADO.")
-    
-    conn.close()
 
-# Función para listar registros
-def listar_registros():
-    print("OPCIONES DE LISTADO: 1. TODOS LOS REGISTROS 2. STOCK MÍNIMO")
-   # opcion = int(input("SELECCIONE
+
+def funcion_1():
+    cargar_datos()
+    print("Ejecutando Función 1")
+
+def funcion_2():
+    print("Ejecutando Función 2")
+
+def funcion_3():
+    print("Ejecutando Función 4")
+
+def funcion_4():
+    print("Ejecutando Función 4")
+
+def funcion_5():
+    print("Ejecutando Función 5")
+
+def mostrar_menu():
+    print("\nMenú de Opciones:")
+    print("1. carga de registros")
+    print("2. modificación de registros")
+    print("3. consultar registros")
+    print("4. eliminar registr")
+    print("5. listado bajo stock")
+    print("0. Salir")
+
+def main():
+    while True:
+        mostrar_menu()
+        opcion = input("Seleccione una opción (1-5): ")
+        if opcion == '1':
+            funcion_1()
+        elif opcion == '2':
+            funcion_2()
+        elif opcion == '3':
+            funcion_3()
+        elif opcion == '4':
+            funcion_4()
+        elif opcion == '5':
+            funcion_5()
+        elif opcion == '0':
+            print("Saliendo del programa...")
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+if __name__ == "__main__":
+    main()
+
