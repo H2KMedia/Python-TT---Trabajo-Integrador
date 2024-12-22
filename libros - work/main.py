@@ -8,9 +8,11 @@ def inicializar_bd():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS registros (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            articulo TEXT NOT NULL,
-            descripcion TEXT,
-            rubro TEXT,
+            autor TEXT NOT NULL,
+            titulo TEXT NOT NULL,
+            editorial TEXT,
+            edicion INTEGER,
+            isbn INTEGER,
             stock INTEGER,
             precio REAL
         )
@@ -22,14 +24,14 @@ def inicializar_bd():
 def mostrar_menu():
     #os.system('cls' if os.name == 'nt' else 'clear')
     print(150*"-")
-    print("|                                                       MENÚ DE OPCIONES PRODUCCION TEXTIL                                                        |")
+    print("|                                                       MENÚ DE OPCIONES DISTRIBUIDORA LIBROS                                                        |")
     print(150*"-")
     print("|                                                                                                                                                    |")
-    print("|                                                             1 - REGISTRAR ARTICULOS                                                                    |")
-    print("|                                                             2 - ACTUALIZAR ARTÍCULO                                                                   |")
-    print("|                                                             3 - ELIMINAR ARTÍCULO                                                                     |")
-    print("|                                                             4 - BUSCAR ARTICULO                                                                       |")
-    print("|                                                             5 - LISTADOS                                                                      |")
+    print("|                                                             1 - REGISTRAR LIBRO                                                                    |")
+    print("|                                                             2 - ACTUALIZAR LIBRO                                                                   |")
+    print("|                                                             3 - ELIMINAR LIBRO                                                                     |")
+    print("|                                                             4 - BUSCAR LIBRO                                                                       |")
+    print("|                                                             5 - LISTAR LIBROS                                                                      |")
     print("|                                                             0 - SALIR DE SISTEMA                                                                   |")
     print("|                                                                                                                                                    |")
     print(150*"-")
@@ -38,9 +40,11 @@ def mostrar_menu():
 def agregar_registro():
     #os.system('cls' if os.name == 'nt' else 'clear')
     while True:
-        articulo = input("INGRESE EL ARTÏCULO: ")
-        descripcion = input("INGRESE UNA DESCRIPCIÖN DEL ARTICULO: ")
-        rubro = input("INGRESE EL RUBRO: ")
+        autor = input("INGRESE EL AUTOR: ")
+        titulo = input("INGRESE EL TITULO: ")
+        editorial = input("INGRESE LA EDITORIAL: ")
+        edicion = int(input("INGRESE LA EDICIÓN: "))
+        isbn = int(input("INGRESE EL CÓDIGO ISBN: "))
         stock = int(input("INGRESE EL STOCK: "))
         precio = float(input("INGRESE EL PRECIO: "))
 
@@ -49,9 +53,9 @@ def agregar_registro():
             conn = sqlite3.connect('stock.db')
             cursor = conn.cursor()
             cursor.execute('''
-                INSERT INTO registros (articulo, descripcion, rubro, stock, precio)
-                VALUES (?, ?, ?, ?, ?)
-            ''', (articulo, descripcion, rubro, stock, precio))
+                INSERT INTO registros (autor, titulo, editorial, edicion, isbn, stock, precio)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ''', (autor, titulo, editorial, edicion, isbn, stock, precio))
             conn.commit()
             conn.close()
             print("REGISTRO GUARDADO CORRECTAMENTE")
@@ -65,19 +69,19 @@ def modificar_registro():
     #os.system('cls' if os.name == 'nt' else 'clear')
     print("OPCIONES DE BÚSQUEDA: ")
     print(" 1. ID")
-    print(" 2. ARTÍCULO ")
-    print(" 3. RUBRO")
+    print(" 2. AUTOR ")
+    print(" 3. TÍTULO")
     opcion = int(input("SELECCIONE UNA OPCIÓN: "))
 
     if opcion == '1':
         referencia = input("INGRESE EL ID: ")
         campo_busqueda = "id"
     elif opcion == '2':
-        referencia = input("INRESE EL ARTÍCULO: ")
-        campo_busqueda = "articulo"
+        referencia = input("INRESE EL AUTORr: ")
+        campo_busqueda = "autor"
     elif opcion == '3':
-        referencia = input("INGRESE EL RUBRO: ")
-        campo_busqueda = "rubro"
+        referencia = input("INGRESE EL TÍTULO: ")
+        campo_busqueda = "titulo"
     else:
         print("OPCIÓN NO VÁLIDA, INTENTE NUEVAMENTE")
         return
@@ -91,24 +95,28 @@ def modificar_registro():
 
     if registro:
         id_registro = registro[0]
-        print(f"ID: {registro[0]}, ARTÍCULO: {registro[1]}, DESCRIPCIÓN: {registro[2]}, RUBRO: {registro[3]}, STOCK: {registro[4]}, PRECIO: {registro[5]}")
+        print(f"ID: {registro[0]}, AUTOR: {registro[1]}, TITULO: {registro[2]}, EDITORIAL: {registro[3]}, EDICIÓN: {registro[4]}, ISBN: {registro[5]}STOCK: {registro[6]}, PRECIO: {registro[7]}")
         
-        nuevo_articulo = input("INGRESE EL NUEVO ARTÍCULO (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[1]
-        nuevo_descripcion = input("INGRESE LA NUEVA DESCRIPCIÓN DEL ART. (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[2]
-        nuevo_rubro = input("INGRESE EL NUEVO RUBROL (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[3]
+        nuevo_autor = input("INGRESE EL NUEVO AUTOR (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[1]
+        nuevo_titulo = input("INGRESE EL NUEVO TÍTULO (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[2]
+        nuevo_editorial = input("INGRESE LA NUEVA EDITORIAL (DEJAR EN BLANCO PARA NO MODIFICAR): ").upper() or registro[3]
+        nuevo_edicion = input("INGRESE EL NUEVO AÑO DE EDICIÓN (DEJAR EN BLANCO PARA NO MODIFICAR): ")
+        nuevo_edicion = int(nuevo_edicion) if nuevo_edicion else registro[4]
+        nuevo_isbn = input("INGRESE EL NUEVO CÓDIGO ISBN (DEJAR EN BLANCO PARA NO MODIFICAR): ")
+        nuevo_isbn = int(nuevo_isbn) if nuevo_isbn else registro[5]
         nuevo_stock = input("INGRESE EL NUEVO STOCK (DEJAR EN BLANCO PARA NO MODIFICAR): ")
-        nuevo_stock = int(nuevo_stock) if nuevo_stock else registro[4]
+        nuevo_stock = int(nuevo_stock) if nuevo_stock else registro[6]
         nuevo_precio = input("INGRESE EL NUEVO PRECIO (DEJAR EN BLANCO PARA NO MODIFICAR: ")
-        nuevo_precio = float(nuevo_precio) if nuevo_precio else registro[5]
+        nuevo_precio = float(nuevo_precio) if nuevo_precio else registro[7]
 
-        print(f"SE MODIFICARÁN LOS DATOS: ARTÍCULO: {nuevo_articulo}, DESCRIPCIÓN: {nuevo_descripcion}, RUBRO: {nuevo_rubro}, STOCK: {nuevo_stock}, PRECIO: {nuevo_precio}")
+        print(f"AW MODIFICARÁN LOS DATOS: AUTOR: {nuevo_autor}, TÍTULO: {nuevo_titulo}, EDITORIAL: {nuevo_editorial}, EDICIÓN: {nuevo_edicion}, ISBN: {nuevo_isbn}, STOCK: {nuevo_stock}, PRECIO: {nuevo_precio}")
         confirmar = input("¿DESEA GUARDAR LOS CAMBIOS? (S/N): ")
 
         if confirmar.upper() == 'S':
             cursor.execute('''
-                UPDATE registros SET articulo = ?, descripcion = ?, rubro = ?, stock = ?, precio = ?
+                UPDATE registros SET autor = ?, titulo = ?, editorial = ?, edicion = ?, isbn = ?, stock = ?, precio = ?
                 WHERE id = ?
-            ''', (nuevo_articulo, nuevo_descripcion, nuevo_rubro, nuevo_stock, nuevo_precio, id_registro))
+            ''', (nuevo_autor, nuevo_titulo, nuevo_editorial, nuevo_edicion, nuevo_isbn, nuevo_stock, nuevo_precio, id_registro))
             conn.commit()
             print("REGISTRO MODIFICADO.")
     else:
@@ -129,7 +137,7 @@ def eliminar_registro():
     registro = cursor.fetchone()
 
     if registro:
-        print(f"ID: {registro[0]}, ARTÍCULO: {registro[1]}, DESCRIPCIÓN: {registro[2]}, RUBRO: {registro[3]}, STOCK: {registro[4]}, PRECIO: {registro[5]}")
+        print(f"ID: {registro[0]}, AUTOR: {registro[1]}, TITULO: {registro[2]}, EDITORIAL: {registro[3]}, EDICIÓN: {registro[4]}, ISBN: {registro[5]}STOCK: {registro[6]}, PRECIO: {registro[7]}")
         confirmar = input("¿DESEA ELIMINAR ESTE REGISTRO? (S/N): ")
 
         if confirmar.upper() == 'S':
@@ -176,7 +184,8 @@ def listar_registros():
     
     registros = cursor.fetchall()
     for registro in registros:
-        print(f"ID: {registro[0]}, ARTÍCULO: {registro[1]}, DESCRIPCIÓN: {registro[2]}, RUBRO: {registro[3]}, STOCK: {registro[4]}, PRECIO: {registro[5]}")
+        print(f"ID: {registro[0]}, AUTOR: {registro[1]}, TITULO: {registro[2]}, EDITORIAL: {registro[3]}, EDICIÓN: {registro[4]}, ISBN: {registro[5]}STOCK: {registro[6]}, PRECIO: {registro[7]}")
+    
     conn.close()
 
 # Función principal del menú
