@@ -36,7 +36,7 @@ def mostrar_menu():
     
 # Función para agregar un nuevo registro
 def agregar_registro():
-    #os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
     while True:
         print(150*"-")
         print("|                                                            SUBMENÚ CARGA DE ARTÍCULOS                                                              |")
@@ -165,7 +165,7 @@ def eliminar_registro():
     conn.close()
     
 def buscar_registros():
-    #os.system('cls' if os.name == 'nt' else 'clear')
+    os.system('cls' if os.name == 'nt' else 'clear')
     print(150*"-")  
     print("|                                                           SUBMENÚ BÚSQUEDA DE ARTÍCULOS                                                            |")
     print(150*"-") 
@@ -202,7 +202,15 @@ def buscar_registros():
     registro = cursor.fetchone()
     if registro:
         id_registro = registro[0]
-        print(f"ID: {registro[0]}, ARTÍCULO: {registro[1]}, DESCRIPCIÓN: {registro[2]}, RUBRO: {registro[3]}, STOCK: {registro[4]}, PRECIO: $ {registro[5]}")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
+    print("|  ID  | ARTÍCULO     |      DESCRIPCIÓN                                                                         | RUBRO        | STOCK  |  PRECIO   |")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
+    print(f"| {registro[0]:>4} | {registro[1]:<12} | {registro[2]:<88} | {registro[3]:<12} | {registro[4]:>6} | $ {registro[5]:>7} |")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
+    conn.close()
+    print()
+    input("PRESIONE CUALQUIER TECLA PARA CONTINUAR...")
+    os.system('cls' if os.name == 'nt' else 'clear')
     
 # Función para listar registros
 def listar_registros():
@@ -244,12 +252,16 @@ def listar_registros():
         return
     
     os.system('cls' if os.name == 'nt' else 'clear')
-    print(150*"-")
-    registros = cursor.fetchall()
+    registros = cursor.fetchall() 
+    print("+----------------------------------------------------------------------------------------------------------------------------------------------------+")
+    print("|                                                             LISTADO COMPLETO DE ARTICULOS                                                          |")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
+    print("|  ID  | ARTÍCULO     |      DESCRIPCIÓN                                                                         | RUBRO        | STOCK  |  PRECIO   |")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
     for registro in registros:
-        print(f"| ID: {registro[0]}, | ARTÍCULO: {registro[1]}, | DESCRIPCIÓN: {registro[2]}, | RUBRO: {registro[3]}, | STOCK: {registro[4]}, | PRECIO: $ {registro[5]} |")
+        print(f"| {registro[0]:>4} | {registro[1]:<12} | {registro[2]:<88} | {registro[3]:<12} | {registro[4]:>6} | $ {registro[5]:>7} |")
+    print("+------+--------------+------------------------------------------------------------------------------------------+--------------+--------+-----------+")
     conn.close()
-    print(150*"-")
     print()
     input("PRESIONE CUALQUIER TECLA PARA CONTINUAR...")
     os.system('cls' if os.name == 'nt' else 'clear')
